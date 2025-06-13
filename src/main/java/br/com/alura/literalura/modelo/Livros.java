@@ -1,15 +1,13 @@
 package br.com.alura.literalura.modelo;
 
+import java.util.List;
+
 public class Livros {
     private Long id;
     private String titulo;
-    private Autor autor;
-    private Idioma idioma;
+    private List<Autor> autor;
+    private List<String> idioma;
     private Integer numeroDeDownloads;
-
-    public Livros(){
-
-    }
 
     public Long getId() {
         return id;
@@ -27,19 +25,19 @@ public class Livros {
         this.titulo = titulo;
     }
 
-    public Autor getAutor() {
+    public List<Autor> getAutor() {
         return autor;
     }
 
-    public void setAutor(Autor autor) {
+    public void setAutor(List<Autor> autor) {
         this.autor = autor;
     }
 
-    public Idioma getIdioma() {
+    public List<String> getIdioma() {
         return idioma;
     }
 
-    public void setIdioma(Idioma idioma) {
+    public void setIdioma(List<String> idioma) {
         this.idioma = idioma;
     }
 
@@ -53,10 +51,9 @@ public class Livros {
 
     @Override
     public String toString() {
-        return "Livro: " + titulo + '\'' +
+        return "Titulo='" + titulo + '\'' +
                 ", autor=" + autor +
                 ", idioma=" + idioma +
-                ", numeroDeDownloads=" + numeroDeDownloads +
-                '}';
+                ", numeroDeDownloads=" + numeroDeDownloads ;
     }
 }

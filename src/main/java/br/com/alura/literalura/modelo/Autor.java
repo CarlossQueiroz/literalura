@@ -8,11 +8,6 @@ public class Autor {
     private Integer dataNascimento;
     private Integer dataFalecimento;
 
-    private List<Livros> livros;
-
-    public Autor(){
-    }
-
     public long getId() {
         return id;
     }
@@ -45,20 +40,10 @@ public class Autor {
         this.dataFalecimento = dataFalecimento;
     }
 
-    public List<Livros> getLivros() {
-        return livros;
-    }
-
-    public void setLivros(List<Livros> livros) {
-        this.livros = livros;
-    }
-
     @Override
     public String toString() {
         return "Autor:" + nome +
                 ", dataNascimento:" + dataNascimento +
-                ", dataFalecimento:" + dataFalecimento +
-                ", livros:" + livros +
-                '}';
+                ", dataFalecimento:" + dataFalecimento;
     }
 }
