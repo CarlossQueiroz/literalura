@@ -52,7 +52,7 @@ public class Principal {
                     buscarLivrosRegistrados();
                     break;
                 case 3:
-                    //listarSeriesBuscadas();
+                    listarAutoresRegistrados();
                     break;
                 case 4:
                     //buscarSeriePorTitulo();
@@ -66,6 +66,22 @@ public class Principal {
                 default:
                     System.out.println("Opção inválida");
             }
+        }
+    }
+
+    public void listarAutoresRegistrados() {
+        List<Autor> autores = autorRepositorio.findAll();
+
+        if (autores.isEmpty()) {
+            System.out.println("Nenhum autor registrado.");
+            return;
+        }
+
+        for (Autor autor : autores) {
+            System.out.println("Nome: " + autor.getNome());
+            System.out.println("Nascimento: " + autor.getDataNascimento());
+            System.out.println("Falecimento: " + autor.getDataFalecimento());
+            System.out.println("-----------------------------------");
         }
     }
 
