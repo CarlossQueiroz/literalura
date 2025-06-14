@@ -1,6 +1,8 @@
 package br.com.alura.literalura.principal;
 
 import br.com.alura.literalura.modelo.*;
+import br.com.alura.literalura.repository.AutorRepository;
+import br.com.alura.literalura.repository.LivrosRepository;
 import br.com.alura.literalura.service.ConsumoApi;
 import br.com.alura.literalura.service.ConverteDados;
 
@@ -15,7 +17,15 @@ public class Principal {
     private ConsumoApi consumo = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
     private final String ENDERECO = "https://gutendex.com";
+
     private List<Livros> listaLivros = new ArrayList<>();
+    private LivrosRepository livrosRepositorio;
+    private AutorRepository autorRepositorio;
+
+    public Principal(LivrosRepository livrosRepositorio, AutorRepository autorRepositorio) {
+        this.livrosRepositorio = livrosRepositorio;
+        this.autorRepositorio = autorRepositorio;
+    }
 
     public void exibeMenu() {
         var opcao = -1;
@@ -39,7 +49,7 @@ public class Principal {
                     BuscarLivroPorTítulo();
                     break;
                 case 2:
-                    //buscarEpisodioPorSerie();
+                    buscarLivrosRegistrados();
                     break;
                 case 3:
                     //listarSeriesBuscadas();
@@ -59,15 +69,32 @@ public class Principal {
         }
     }
 
+    private void buscarLivrosRegistrados() {
+            List<Livros> livros = livrosRepositorio.findAll();
 
+            if (livros.isEmpty()) {
+                System.out.println("Nenhum livro encontrado no banco de dados.");
+                return;
+            }
 
+            for (Livros livro : livros) {
+                System.out.println("Título: " + livro.getTitulo());
+                System.out.println("Idioma: " + livro.getIdioma());
+                System.out.println("Downloads: " + livro.getNumeroDeDownloads());
+                livro.getAutor().forEach(autor -> {
+                    System.out.println("Autor: " + autor.getNome());
+                    System.out.println("Nascimento: " + autor.getDataNascimento());
+                    System.out.println("Falecimento: " + autor.getDataFalecimento());
+                });
+                System.out.println("--------------------------------------");
+            }
+    }
 
     private void BuscarLivroPorTítulo() {
         System.out.println("Digite o título do livro que deseja buscar:");
         var livrobusca = scanner.nextLine();
 
         var json = consumo.obterDados(ENDERECO + "/books?search=" + livrobusca.replace(" ", "+"));
-        System.out.println("JSON recebido: " + json);
 
         if (json == null || json.isBlank()) {
             System.out.println("Resposta vazia da API.");
@@ -81,17 +108,12 @@ public class Principal {
 
             listaLivros = dados.results().stream()
                     .map(this::converterParaLivro)
+                    .filter(livro -> !livrosRepositorio.existsByTitulo(livro.getTitulo()))
                     .collect(Collectors.toList());
 
-            for(Livros livros: listaLivros){
-                System.out.println("Título: " + livros.getTitulo());
-                System.out.println("Idioma: " + livros.getIdioma());
-                System.out.println("Downloads: " + livros.getNumeroDeDownloads());
-                livros.getAutor().stream().map(Autor::getNome).forEach(n-> System.out.println("Autor(es): " + n ));
-                System.out.println("--------------------------------------");
-            }
+            livrosRepositorio.saveAll(listaLivros);
 
-            System.out.println(listaLivros);
+            getDadosLivro();
         }
     }
 
@@ -103,16 +125,32 @@ public class Principal {
         livro.setAutor(dl.autor().stream()
                 .map(this::converterParaAutor)
                 .collect(Collectors.toList()));
+
+        //repositorio.save(livro);
+
         return livro;
     }
 
+
     private Autor converterParaAutor(DadosAutor da) {
-        var autor = new Autor();
-        autor.setNome(da.nome());
-        autor.setDataNascimento(da.anoNascimento());
-        autor.setDataFalecimento(da.anoFalecimento());
-        return autor;
+        return autorRepositorio.findByNome(da.nome())
+                .orElseGet(() -> {
+                    Autor novoAutor = new Autor();
+                    novoAutor.setNome(da.nome());
+                    novoAutor.setDataNascimento(da.anoNascimento());
+                    novoAutor.setDataFalecimento(da.anoFalecimento());
+                    return novoAutor;
+                });
     }
 
+    private void getDadosLivro() {
+        for (Livros livros : listaLivros) {
+            System.out.println("Título: " + livros.getTitulo());
+            System.out.println("Idioma: " + livros.getIdioma());
+            System.out.println("Downloads: " + livros.getNumeroDeDownloads());
+            livros.getAutor().stream().map(Autor::getNome).forEach(n -> System.out.println("Autor(es): " + n));
+            System.out.println("--------------------------------------");
+        }
+    }
 
 }
